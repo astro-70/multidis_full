@@ -156,3 +156,4 @@ def test_admin_metrics_and_role_guard(client):
     metrics = metrics_res.json()
     assert metrics["total_careers"] >= 25
     assert metrics["total_exams_scholarships"] >= 7
+

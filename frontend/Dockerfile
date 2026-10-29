@@ -8,8 +8,8 @@ RUN npm install --production
 COPY . .
 RUN npm run build
 
-EXPOSE 3000
-ENV PORT=3000
+EXPOSE 3005
+ENV PORT=3005
 
 CMD ["npm", "start"]
 

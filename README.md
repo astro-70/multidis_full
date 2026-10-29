@@ -205,7 +205,7 @@ npm install
 # Start Next.js development server
 npm run dev
 ```
-Open `http://localhost:3000` in your browser.
+Open `http://localhost:3005` in your browser.
 
 ---
 
@@ -216,7 +216,7 @@ Run the complete multi-container system (PostgreSQL + FastAPI Backend + Next.js 
 ```bash
 docker compose up --build
 ```
-- Frontend: `http://localhost:3000`
+- Frontend: `http://localhost:3005`
 - Backend API: `http://localhost:8000`
 - PostgreSQL: `localhost:5432`
 

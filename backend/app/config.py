@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
     DEBUG: bool = True
     ENVIRONMENT: str = "development"
-    FRONTEND_URL: str = "http://localhost:3000"
+    FRONTEND_URL: str = "http://localhost:3005"
 
     # Security
     SECRET_KEY: str = "pathfinder_local_dev_key_secure_and_safe_for_testing_123456789"
