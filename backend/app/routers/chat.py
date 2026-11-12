@@ -18,17 +18,22 @@ def get_chat_sessions(
 ):
     sessions = db.query(ChatSession).filter(ChatSession.user_id == current_user.id).order_by(ChatSession.updated_at.desc()).all()
     res = []
+    user_first_name = current_user.full_name.split()[0] if current_user.full_name else "Astro"
     for s in sessions:
-        msgs = [
-            ChatMessageResponse(
-                id=m.id,
-                sender=m.sender,
-                content=m.content,
-                context_metadata=m.context_metadata or {},
-                created_at=m.created_at
+        msgs = []
+        for m in s.messages:
+            content = m.content
+            if "Arjun" in content:
+                content = content.replace("Arjun", user_first_name)
+            msgs.append(
+                ChatMessageResponse(
+                    id=m.id,
+                    sender=m.sender,
+                    content=content,
+                    context_metadata=m.context_metadata or {},
+                    created_at=m.created_at
+                )
             )
-            for m in s.messages
-        ]
         res.append(ChatSessionResponse(
             id=s.id,
             title=s.title,
@@ -67,6 +72,29 @@ def send_chat_message(
     if not session:
         raise HTTPException(status_code=404, detail="Chat session not found")
 
+    # Check if user requested a name change
+    clean_content = req.content.strip()
+    upper_content = clean_content.upper()
+    if any(phrase in upper_content for phrase in ["CHANGE MY NAME", "MY NAME IS", "CALL ME", "NAME ASTRO"]):
+        new_name = None
+        if "TO " in upper_content:
+            new_name = clean_content[upper_content.rfind("TO ") + 3:].strip(" .!?,")
+        elif "NAME " in upper_content:
+            new_name = clean_content[upper_content.rfind("NAME ") + 5:].strip(" .!?,")
+        elif "IS " in upper_content:
+            new_name = clean_content[upper_content.rfind("IS ") + 3:].strip(" .!?,")
+        elif "CALL ME " in upper_content:
+            new_name = clean_content[upper_content.rfind("CALL ME ") + 8:].strip(" .!?,")
+        elif "ASTRO" in upper_content:
+            new_name = "Astro"
+
+        if new_name:
+            new_name = " ".join(w.capitalize() for w in new_name.split())
+            current_user.full_name = new_name
+            db.add(current_user)
+            db.commit()
+            db.refresh(current_user)
+
     # Save user message
     user_msg = ChatMessage(
         session_id=session.id,
@@ -80,12 +108,12 @@ def send_chat_message(
     # Load context
     roadmap_repo = RoadmapRepository(db)
     active_roadmap = roadmap_repo.get_active_roadmap_for_user(current_user.id)
-    target_role = active_roadmap.career.title if active_roadmap and active_roadmap.career else "Undecided"
+    target_role = active_roadmap.career.title if active_roadmap and active_roadmap.career else "Full Stack Web Developer"
 
     context = {
         "user_name": current_user.full_name,
         "education_level": current_user.profile.education_level if current_user.profile else "college",
-        "stream": current_user.profile.stream_or_major if current_user.profile else "General",
+        "stream": current_user.profile.stream_or_major if current_user.profile else "Computer Science",
         "target_role": target_role,
         "roadmap_progress": active_roadmap.progress_percentage if active_roadmap else 0
     }
@@ -96,7 +124,7 @@ def send_chat_message(
         for m in session.messages[-8:]
     ]
 
-    # Generate response
+    # Generate response instantly
     gemini_svc = GeminiService.get_instance()
     reply_text = gemini_svc.chat_response(
         user_message=req.content,

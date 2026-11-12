@@ -46,8 +46,8 @@ export default function LoginPage() {
       } else {
         const res = await ApiClient.googleLogin({
           id_token: "demo_google_token_123",
-          email: "arjun.verma@example.com",
-          full_name: "Arjun Verma"
+          email: "astro@pathfinder.ai",
+          full_name: "Astro"
         });
         login(res.access_token, { id: res.user_id, email: res.email, full_name: res.full_name, role: res.role });
         router.push("/dashboard");
@@ -130,7 +130,7 @@ export default function LoginPage() {
             className="py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-center gap-1.5 transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-            Demo Student
+            Demo Student (Astro)
           </button>
           <button
             onClick={() => handleDemoLogin("admin")}

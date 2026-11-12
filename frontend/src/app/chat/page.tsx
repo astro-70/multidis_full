@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Bot, Send, User, Sparkles, Compass, MessageSquare, Clock } from "lucide-react";
 
 export default function ChatPage() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
@@ -34,7 +34,7 @@ export default function ChatPage() {
             {
               id: "intro",
               sender: "assistant",
-              content: `Hello ${user ? user.full_name.split(" ")[0] : "there"}! I'm your PathFinder AI Career Mentor. I have full context on your education background and active roadmap milestones. What questions or career roadblocks can we solve together today?`,
+              content: `Hello ${user?.full_name ? user.full_name.split(" ")[0] : "Astro"}! I'm your PathFinder AI Career Mentor. I have full context on your education background and active roadmap milestones. What questions or career roadblocks can we solve together today?`,
               created_at: new Date().toISOString()
             }
           ]);
@@ -68,6 +68,9 @@ export default function ChatPage() {
     try {
       const reply = await ApiClient.sendChatMessage(sessionId, text);
       setMessages((prev) => [...prev, reply]);
+      if (text.toUpperCase().includes("NAME")) {
+        refreshUser();
+      }
     } catch (e: any) {
       setMessages((prev) => [
         ...prev,

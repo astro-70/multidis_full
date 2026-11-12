@@ -12,7 +12,7 @@ class ProfileBase(BaseModel):
     career_clarity_score: Optional[int] = 50
 
 class ProfileUpdate(ProfileBase):
-    pass
+    full_name: Optional[str] = None
 
 class ProfileResponse(ProfileBase):
     model_config = ConfigDict(from_attributes=True)

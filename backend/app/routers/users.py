@@ -16,7 +16,13 @@ def update_profile(
     db: Session = Depends(get_db)
 ):
     user_repo = UserRepository(db)
-    profile = user_repo.update_profile(current_user.id, req.model_dump(exclude_unset=True))
+    dump_data = req.model_dump(exclude_unset=True)
+    if "full_name" in dump_data and dump_data["full_name"]:
+        current_user.full_name = dump_data.pop("full_name").strip()
+        db.add(current_user)
+        db.commit()
+        db.refresh(current_user)
+    profile = user_repo.update_profile(current_user.id, dump_data)
     return profile
 
 @router.post("/skills", response_model=UserSkillResponse)
